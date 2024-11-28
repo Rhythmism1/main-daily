@@ -24,7 +24,11 @@ const status_text = {
   disconnected: "Start",
 };
 
-export default function App() {
+interface AppProps {
+  userKnowledge: string;
+}
+
+export default function App({ userKnowledge }: AppProps) {
   const voiceClient = useRTVIClient()!;
   const transportState = useRTVIClientTransportState();
 
@@ -53,10 +57,15 @@ export default function App() {
   }, [appState, voiceClient]);
 
   useEffect(() => {
+    if (!voiceClient) return;
+  
+    const currentParams = voiceClient.params || {};
+    const currentRequestData = currentParams.requestData || {};
+  
     voiceClient.params = {
-      ...voiceClient.params,
+      ...currentParams,
       requestData: {
-        ...voiceClient.params.requestData,
+        ...currentRequestData,
         ...clientParams,
       },
     };
@@ -64,8 +73,6 @@ export default function App() {
 
   useEffect(() => {
     // Update app state based on voice client transport state.
-    // We only need a subset of states to determine the ui state,
-    // so this effect helps avoid excess inline conditionals.
     console.log(transportState);
     switch (transportState) {
       case "initialized":
@@ -88,14 +95,12 @@ export default function App() {
   async function start() {
     if (!voiceClient) return;
 
-    // Join the session
     try {
       // Disable the mic until the bot has joined
-      // to avoid interrupting the bot's welcome message
       voiceClient.enableMic(false);
       await voiceClient.connect();
     } catch (e) {
-      setError((e as RTVIError).message || "Unknown error occured");
+      setError((e as RTVIError).message || "Unknown error occurred");
       voiceClient.disconnect();
     }
   }
@@ -124,6 +129,7 @@ export default function App() {
         state={transportState}
         onLeave={() => leave()}
         startAudioOff={startAudioOff}
+        userKnowledge={userKnowledge} // Pass userKnowledge to Session
       />
     );
   }
