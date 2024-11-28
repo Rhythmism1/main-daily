@@ -171,7 +171,8 @@ export const ConfigSelect: React.FC<ConfigSelectProps> = ({
           handleUpdate={(prompt: LLMContextMessage[]) => {        
             const updatedCharacter = {
               ...PRESET_CHARACTERS[character],
-              prompt: prompt[0].content as string // Assuming the first message contains the prompt
+              prompt: prompt[0].content as string, // Assuming the first message contains the prompt
+              name: PRESET_CHARACTERS[character].name 
             };
             PRESET_CHARACTERS[character] = updatedCharacter;
 

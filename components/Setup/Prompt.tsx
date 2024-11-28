@@ -7,25 +7,27 @@ import * as Card from "../ui/card";
 import { Textarea } from "../ui/textarea";
 
 type PromptProps = {
-  handleUpdate: (context: LLMContextMessage[]) => void;
+  //handleUpdate: (context: LLMContextMessage[]) => void;
+  handleUpdate: (context: LLMContextMessage[], newName?: string) => void;
+
   handleClose: () => void;
   characterPrompt?: string;
-    characterName?: string;
-
+  characterName?: string;
 };
 
 const Prompt: React.FC<PromptProps> = ({
   handleUpdate,
   handleClose,
   characterPrompt,
-  characterName = "Default"
-
+  characterName = "Default",
 }) => {
   const voiceClient = useRTVIClient()!;
   const [prompt, setPrompt] = useState<LLMContextMessage[] | undefined>(
     undefined
   );
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [newName, setNewName] = useState(characterName);
+  const [isEditingName, setIsEditingName] = useState(false);
 
   useEffect(() => {
     if (!characterPrompt) return;
@@ -45,8 +47,10 @@ const Prompt: React.FC<PromptProps> = ({
   function save() {
     if (!voiceClient || !prompt) return;
 
-    handleUpdate(prompt); // Send updated context to parent
+    handleUpdate(prompt, newName); // Pass both prompt and name
+
     setHasUnsavedChanges(false); // Reset unsaved changes indicator
+
   }
 
   const updateContextMessage = (index: number, content: string) => {
@@ -66,6 +70,42 @@ const Prompt: React.FC<PromptProps> = ({
       </Card.CardHeader>
       <Card.CardContent>
         <div className="flex flex-col gap-3">
+          {/* Add editable character name */}
+          <div className="flex items-center gap-2">
+            {isEditingName ? (
+              <>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="flex-1 p-2 border rounded"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Example update logic for character name
+                    setIsEditingName(false);
+                    setHasUnsavedChanges(true); // Optional: Track this as unsaved change
+                  }}
+                >
+                  Save Name
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="font-bold">Character Name: {newName}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditingName(true)}
+                >
+                  Edit Name
+                </Button>
+              </>
+            )}
+          </div>
+
           {/* Render editable text areas for each prompt message */}
           {prompt?.map((message, i) => (
             <div key={i} className="flex flex-col gap-1 items-start">
