@@ -1,14 +1,9 @@
 import { cx } from "class-variance-authority";
 import { Languages } from "lucide-react";
 import Image from "next/image";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { RTVIClientConfigOption } from "realtime-ai";
+import { LLMContextMessage } from "realtime-ai";
 
 import { AppContext } from "@/components/context";
 import {
@@ -82,28 +77,22 @@ export const ConfigSelect: React.FC<ConfigSelectProps> = ({
       }
     )?.stop_secs
   );
-  const [showPrompt, setshowPrompt] = useState<boolean>(false);
+  const [showPrompt, setShowPrompt] = useState<boolean>(false);
   const modalRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    // Modal effect
-    // Note: backdrop doesn't currently work with dialog open, so we use setModal instead
     const current = modalRef.current;
 
     if (current && showPrompt) {
-      current.inert = true;
       current.showModal();
-      current.inert = false;
     }
     return () => current?.close();
   }, [showPrompt]);
 
   const composeConfig = useCallback(
     (character: number, language: number) => {
-      // Get character data
       const characterData = PRESET_CHARACTERS[character] as CharacterData;
 
-      // Compose new config object
       const updatedConfig: RTVIClientConfigOption[] = [
         {
           service: "tts",
@@ -178,15 +167,23 @@ export const ConfigSelect: React.FC<ConfigSelectProps> = ({
       <dialog ref={modalRef}>
         <Prompt
           characterPrompt={PRESET_CHARACTERS[character].prompt}
-          handleUpdate={(prompt) => {
+          characterName={PRESET_CHARACTERS[character].name}
+          handleUpdate={(prompt: LLMContextMessage[]) => {        
+            const updatedCharacter = {
+              ...PRESET_CHARACTERS[character],
+              prompt: prompt[0].content as string // Assuming the first message contains the prompt
+            };
+            PRESET_CHARACTERS[character] = updatedCharacter;
+
             onConfigUpdate([
               {
                 service: "llm",
                 options: [{ name: "initial_messages", value: prompt }],
               },
             ]);
+            setCharacter(character); // Trigger re-render
           }}
-          handleClose={() => setshowPrompt(false)}
+          handleClose={() => setShowPrompt(false)}
         />
       </dialog>
       <div className="flex flex-col flex-wrap gap-4">
@@ -231,7 +228,7 @@ export const ConfigSelect: React.FC<ConfigSelectProps> = ({
                         </option>
                       ))}
                     </Select>
-                    <Button variant="light" onClick={() => setshowPrompt(true)}>
+                    <Button variant="light" onClick={() => setShowPrompt(true)}>
                       Customize
                     </Button>
                   </div>
@@ -265,7 +262,6 @@ export const ConfigSelect: React.FC<ConfigSelectProps> = ({
                             )?.models[0].value!;
                             setLlmModel(defaultProviderModel);
 
-                            // Update app context
                             onServiceUpdate({ llm: value });
                             onConfigUpdate([
                               {

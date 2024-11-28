@@ -10,12 +10,16 @@ type PromptProps = {
   handleUpdate: (context: LLMContextMessage[]) => void;
   handleClose: () => void;
   characterPrompt?: string;
+    characterName?: string;
+
 };
 
 const Prompt: React.FC<PromptProps> = ({
   handleUpdate,
   handleClose,
   characterPrompt,
+  characterName = "Default"
+
 }) => {
   const voiceClient = useRTVIClient()!;
   const [prompt, setPrompt] = useState<LLMContextMessage[] | undefined>(
@@ -26,6 +30,7 @@ const Prompt: React.FC<PromptProps> = ({
   useEffect(() => {
     if (!characterPrompt) return;
 
+    // Initialize prompt with cleaned-up characterPrompt
     setPrompt([
       {
         role: "system",
@@ -40,9 +45,8 @@ const Prompt: React.FC<PromptProps> = ({
   function save() {
     if (!voiceClient || !prompt) return;
 
-    handleUpdate(prompt);
-
-    setHasUnsavedChanges(false);
+    handleUpdate(prompt); // Send updated context to parent
+    setHasUnsavedChanges(false); // Reset unsaved changes indicator
   }
 
   const updateContextMessage = (index: number, content: string) => {
@@ -50,10 +54,9 @@ const Prompt: React.FC<PromptProps> = ({
       if (!prev) return prev;
       const newPrompt = [...prev];
       newPrompt[index].content = content;
-
       return newPrompt;
     });
-    setHasUnsavedChanges(true);
+    setHasUnsavedChanges(true); // Track unsaved changes
   };
 
   return (
@@ -63,6 +66,7 @@ const Prompt: React.FC<PromptProps> = ({
       </Card.CardHeader>
       <Card.CardContent>
         <div className="flex flex-col gap-3">
+          {/* Render editable text areas for each prompt message */}
           {prompt?.map((message, i) => (
             <div key={i} className="flex flex-col gap-1 items-start">
               <span className="font-mono font-bold text-sm">
@@ -70,7 +74,7 @@ const Prompt: React.FC<PromptProps> = ({
               </span>
               <Textarea
                 value={message.content as string}
-                rows={prompt?.length <= 1 ? 10 : 5}
+                rows={prompt.length <= 1 ? 10 : 5}
                 onChange={(e) => updateContextMessage(i, e.currentTarget.value)}
                 className="text-sm w-full whitespace-pre-wrap"
               />
@@ -83,8 +87,8 @@ const Prompt: React.FC<PromptProps> = ({
         <Button
           variant={hasUnsavedChanges ? "success" : "outline"}
           onClick={() => {
-            save();
-            handleClose();
+            save(); // Save changes
+            handleClose(); // Close modal
           }}
           disabled={!hasUnsavedChanges}
         >
