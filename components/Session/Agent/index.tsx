@@ -11,8 +11,9 @@ import styles from "./styles.module.css";
 export const Agent: React.FC<{
   isReady: boolean;
   statsAggregator: StatsAggregator;
+  userKnowledge?: string;
 }> = memo(
-  ({ isReady, statsAggregator }) => {
+  ({ isReady, statsAggregator, userKnowledge }) => {
     const [hasStarted, setHasStarted] = useState<boolean>(false);
     const [botStatus, setBotStatus] = useState<
       "initializing" | "connected" | "disconnected"

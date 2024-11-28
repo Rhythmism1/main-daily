@@ -26,10 +26,16 @@ interface SessionProps {
   onLeave: () => void;
   openMic?: boolean;
   startAudioOff?: boolean;
+  userKnowledge: string; // Add userKnowledge prop
 }
 
 export const Session = React.memo(
-  ({ state, onLeave, startAudioOff = false }: SessionProps) => {
+  ({
+    state,
+    onLeave,
+    startAudioOff = false,
+    userKnowledge, // Destructure userKnowledge
+  }: SessionProps) => {
     const voiceClient = useRTVIClient()!;
     const [hasStarted, setHasStarted] = useState<boolean>(false);
     const [showConfig, setShowConfig] = useState<boolean>(false);
@@ -41,8 +47,6 @@ export const Session = React.memo(
     const [updatingConfig, setUpdatingConfig] = useState<boolean>(false);
 
     const modalRef = useRef<HTMLDialogElement>(null);
-    //const bingSoundRef = useRef<HTMLAudioElement>(null);
-    //const bongSoundRef = useRef<HTMLAudioElement>(null);
 
     // ---- Voice Client Events
 
@@ -59,11 +63,6 @@ export const Session = React.memo(
       RTVIEvent.BotStoppedSpeaking,
       useCallback(() => {
         if (hasStarted) return;
-
-        /*if (bingSoundRef.current) {
-          bingSoundRef.current.volume = 0.5;
-          bingSoundRef.current.play();
-        }*/
         setHasStarted(true);
       }, [hasStarted])
     );
@@ -71,11 +70,6 @@ export const Session = React.memo(
     useRTVIClientEvent(
       RTVIEvent.UserStoppedSpeaking,
       useCallback(() => {
-        /*if (bongSoundRef.current) {
-          bongSoundRef.current.volume = 0.5;
-          bongSoundRef.current.play();
-        }*/
-
         if (hasStarted) return;
         setHasStarted(true);
       }, [hasStarted])
@@ -108,7 +102,6 @@ export const Session = React.memo(
 
     useEffect(() => {
       // Modal effect
-      // Note: backdrop doesn't currently work with dialog open, so we use setModal instead
       const current = modalRef.current;
 
       if (current && showConfig) {
@@ -151,7 +144,6 @@ export const Session = React.memo(
 
                   setUpdatingConfig(true);
                   await voiceClient.updateConfig(config);
-                  // On update, reset state
                   setUpdatingConfig(false);
                   setShowConfig(false);
                 }}
@@ -180,6 +172,7 @@ export const Session = React.memo(
             <Agent
               isReady={state === "ready"}
               statsAggregator={stats_aggregator}
+              userKnowledge={userKnowledge} // Pass to Agent (if required)
             />
           </Card.Card>
           <UserMicBubble
@@ -240,8 +233,6 @@ export const Session = React.memo(
             </Button>
           </div>
         </footer>
-        {/*audio ref={bingSoundRef} src="/bing.wav" />
-        <audio ref={bongSoundRef} src="/bong.wav" /> */}
       </>
     );
   },

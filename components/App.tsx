@@ -25,7 +25,7 @@ const status_text = {
 };
 
 interface AppProps {
-  userKnowledge: string;
+  userKnowledge: string; // userKnowledge is passed as a prop
 }
 
 export default function App({ userKnowledge }: AppProps) {
@@ -40,6 +40,7 @@ export default function App({ userKnowledge }: AppProps) {
   const mountedRef = useRef<boolean>(false);
   const { clientParams } = useContext(AppContext);
 
+  // Handle voice client error events
   useRTVIClientEvent(
     RTVIEvent.Error,
     useCallback((message: RTVIMessage) => {
@@ -58,10 +59,10 @@ export default function App({ userKnowledge }: AppProps) {
 
   useEffect(() => {
     if (!voiceClient) return;
-  
+
     const currentParams = voiceClient.params || {};
     const currentRequestData = currentParams.requestData || {};
-  
+
     voiceClient.params = {
       ...currentParams,
       requestData: {
