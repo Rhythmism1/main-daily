@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@daily-co/realtime-ai-daily": "0.2.0",
+    "@prisma/client": "^5.10.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-slider": "^1.2.0",
     "@radix-ui/react-switch": "^1.0.3",
@@ -20,11 +21,13 @@
     "deepmerge-ts": "^7.1.0",
     "lucide-react": "^0.378.0",
     "next": "14.2.5",
+    "prisma": "^5.10.2",
     "react": "^18",
     "react-dom": "^18",
     "react-sparklines": "^1.7.0",
     "realtime-ai": "0.2.0",
     "realtime-ai-react": "0.2.0",
+    "supports-color": "^9.4.0",
     "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {

@@ -70,6 +70,8 @@ export const Session = React.memo(
     useRTVIClientEvent(
       RTVIEvent.UserStoppedSpeaking,
       useCallback(() => {
+        console.log("[DEBUG] User stopped speaking detected"); // Add this debug line
+
         if (hasStarted) return;
         setHasStarted(true);
       }, [hasStarted])

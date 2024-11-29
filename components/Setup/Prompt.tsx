@@ -7,9 +7,7 @@ import * as Card from "../ui/card";
 import { Textarea } from "../ui/textarea";
 
 type PromptProps = {
-  //handleUpdate: (context: LLMContextMessage[]) => void;
   handleUpdate: (context: LLMContextMessage[], newName?: string) => void;
-
   handleClose: () => void;
   characterPrompt?: string;
   characterName?: string;
@@ -45,12 +43,19 @@ const Prompt: React.FC<PromptProps> = ({
   }, [characterPrompt]);
 
   function save() {
-    if (!voiceClient || !prompt) return;
+    console.log("Save function called");
+    console.log("Current prompt:", prompt);
+    console.log("Current newName:", newName);
+
+    if (!voiceClient || !prompt) {
+      console.log("Save cancelled - missing voiceClient or prompt");
+      return;
+    }
 
     handleUpdate(prompt, newName); // Pass both prompt and name
+    console.log("handleUpdate called with name:", newName);
 
     setHasUnsavedChanges(false); // Reset unsaved changes indicator
-
   }
 
   const updateContextMessage = (index: number, content: string) => {
@@ -77,16 +82,19 @@ const Prompt: React.FC<PromptProps> = ({
                 <input
                   type="text"
                   value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
+                  onChange={(e) => {
+                    console.log("Name input changed to:", e.target.value);
+                    setNewName(e.target.value);
+                  }}
                   className="flex-1 p-2 border rounded"
                 />
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    // Example update logic for character name
+                    console.log("Save Name clicked. New name:", newName);
                     setIsEditingName(false);
-                    setHasUnsavedChanges(true); // Optional: Track this as unsaved change
+                    setHasUnsavedChanges(true);
                   }}
                 >
                   Save Name
@@ -127,6 +135,8 @@ const Prompt: React.FC<PromptProps> = ({
         <Button
           variant={hasUnsavedChanges ? "success" : "outline"}
           onClick={() => {
+            console.log("Update button clicked");
+            console.log("hasUnsavedChanges:", hasUnsavedChanges);
             save(); // Save changes
             handleClose(); // Close modal
           }}

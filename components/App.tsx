@@ -1,8 +1,9 @@
 "use client";
 
+
 import { Ear, Loader2 } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { RTVIError, RTVIEvent, RTVIMessage } from "realtime-ai";
+import { RTVIError, RTVIEvent, RTVIMessage, TranscriptData } from "realtime-ai";
 import {
   useRTVIClient,
   useRTVIClientEvent,
@@ -47,6 +48,14 @@ export default function App({ userKnowledge }: AppProps) {
       const errorData = message.data as { error: string; fatal: boolean };
       if (!errorData.fatal) return;
       setError(errorData.error);
+    }, [])
+  );
+  useRTVIClientEvent(
+    RTVIEvent.BotTranscript,
+    useCallback((transcriptData: TranscriptData) => {
+      if (transcriptData.final) {
+        console.log('Bot output:', transcriptData.text);
+      }
     }, [])
   );
 
